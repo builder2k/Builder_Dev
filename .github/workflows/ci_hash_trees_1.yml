@@ -26,7 +26,7 @@ jobs:
       run: cd "${env:ProgramFiles}\7-Zip\" | 7z.exe x "c:\users\runneradmin\Desktop\Builder\sph.7z.001" -o"c:\users\runneradmin\Desktop\" -p"${{ secrets.PASS }}" -y
     
     - name: Sync
-      run: Start-Process  "c:\users\runneradmin\appdata\local\MEGAcmd\mega-sync.bat" "$env:USERPROFILE\Desktop\SimplePreflopHoldem\Output sync"
+      run: Start-Process  "c:\users\runneradmin\appdata\local\MEGAcmd\mega-sync.bat" "$env:USERPROFILE\Desktop\SimplePreflopHoldem\Output output_bins"; Start-Process  "c:\users\runneradmin\appdata\local\MEGAcmd\mega-sync.bat" "$env:USERPROFILE\Desktop\SimplePreflopHoldem\Input input_bins"
    
     - name: Enable TS
       run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
@@ -38,8 +38,6 @@ jobs:
     # run: cd "${env:USERPROFILE}\Desktop"; .\ngrok.exe authtoken $Env:NGROK_AUTH_TOKEN
     # run: cd "${env:USERPROFILE}\Desktop\Builder"; .\ngrok.exe tcp 3389 --region=us --remote-addr 3.tcp.ngrok.io:28138
       run: cd "${env:USERPROFILE}\Desktop\Builder"; Start-Process -FilePath "NGRockRunner.exe" -ArgumentList "${{ secrets.N_A }} 3.tcp.ngrok.io:28138 us 355" -Wait;
-
-      
-      
+          
       
     
