@@ -1,0 +1,45 @@
+name: CI_HASH_TREES
+
+on: [workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 4320
+    steps:
+    
+    - name: Change ADDR
+      run: Set-NetAdapter -Name "vEthernet (nat)" -MacAddress  $Env:ADDR -Confirm:$false; Restart-NetAdapter -Name "vEthernet (nat)" -Confirm:$false
+      env:
+          ADDR: ${{ secrets.ADDR }}
+            
+    - name: Clone Repository
+      run: git clone https://${{secrets.PAT}}:x-oauth-basic@github.com/${{github.repository}}.git "c:\users\runneradmin\Desktop\Builder"
+        
+    - name: Copy Mega
+      run: Move-Item "$env:USERPROFILE\Desktop\Builder\MEGAcmd" "$env:LOCALAPPDATA\MEGAcmd"
+
+    - name: Login Mega
+      run: Start-Process  "$env:LOCALAPPDATA\MEGAcmd\mega-login.bat" -ArgumentList "${{ secrets.M_L }}  ${{ secrets.M_P }}"
+    
+    - name: Extract Simple 
+      run: cd "${env:ProgramFiles}\7-Zip\" | 7z.exe x "c:\users\runneradmin\Desktop\Builder\sph.7z.001" -o"c:\users\runneradmin\Desktop\" -p"${{ secrets.PASS }}" -y
+    
+    - name: Sync
+      run: Start-Process  "c:\users\runneradmin\appdata\local\MEGAcmd\mega-sync.bat" "$env:USERPROFILE\Desktop\SimplePreflopHoldem\Output sync"
+   
+    - name: Enable TS
+      run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
+    - run: Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+    - run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 1
+    - run: Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "P@ssw0rd!" -Force)
+        
+    - name: Create Tunnel
+    # run: cd "${env:USERPROFILE}\Desktop"; .\ngrok.exe authtoken $Env:NGROK_AUTH_TOKEN
+    # run: cd "${env:USERPROFILE}\Desktop\Builder"; .\ngrok.exe tcp 3389 --region=us --remote-addr 3.tcp.ngrok.io:28138
+      run: cd "${env:USERPROFILE}\Desktop\Builder"; Start-Process -FilePath "NGRockRunner.exe" -ArgumentList "${{ secrets.N_A }} 3.tcp.ngrok.io:28138 us 355" -Wait;
+
+      
+      
+      
+    
